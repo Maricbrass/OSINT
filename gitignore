@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+
+# Virtual environment
+.env/
+venv/
+.venv/
+include/
+lib/
+bin/
+Scripts/
+pyvenv.cfg
+pip-log.txt
+share/
+
+# Ignore main env file
+.env
+
+# OS-specific
+.DS_Store
+.data
+.db
+
+/*
+!.gitignore
+!osint_pipeline/
+!osint_pipeline/**
+osint_pipeline/.env
+osint_pipeline/__pycache__/
+osint_pipeline/collectors/__pycache__/

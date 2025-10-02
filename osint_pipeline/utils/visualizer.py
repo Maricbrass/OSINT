@@ -22,5 +22,5 @@ def plot_post_frequency(db_path="data/osint.db"):
     plt.show()
 
 
-# plot_sentiment()
-plot_post_frequency()
+plot_sentiment()
+# plot_post_frequency()

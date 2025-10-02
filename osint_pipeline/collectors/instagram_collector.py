@@ -1,76 +1,73 @@
-import instaloader, os, time
+import os
+import requests
 from dotenv import load_dotenv
-from instaloader import ConnectionException, Profile, ProfileNotExistsException
 
 load_dotenv()
-INSTAGRAM_USERNAME = os.getenv("INSTAGRAM_USERNAME")
-INSTAGRAM_PASSWORD = os.getenv("INSTAGRAM_PASSWORD")
-SESSION_FILE = os.getenv("INSTALOADER_SESSION_FILE")  # optional full path
+RAPIDAPI_KEY = os.getenv("R_INSTAGRAM_KEY")
+RAPIDAPI_HOST = os.getenv("R_INSTAGRAM_HOST")
 
-L = instaloader.Instaloader(download_pictures=False, download_videos=False,
-                            save_metadata=False, compress_json=False)
+def fetch_instagram(hashtag="gaming",limit=5):
+    """
+    Fetch Instagram posts using a RapidAPI service
+    """
+    if not RAPIDAPI_KEY:
+        print("Error: RAPIDAPI_KEY not found in environment variables")
+        return []
+    
+    # These values will vary based on which Instagram API you choose on RapidAPI
+    # You'll need to update these based on the specific API's documentation
+    url = "https://instagram-scraper-stable-api.p.rapidapi.com/search_hashtag.php"
+    
+    querystring = {
+        "hashtag":hashtag
+    }
+    
+    headers = {
+        "X-RapidAPI-Key": RAPIDAPI_KEY,
+        "X-RapidAPI-Host": RAPIDAPI_HOST # Update with your API's host
+    }
 
-# Try to load existing session, else login and save session
-def _ensure_session():
-    if not INSTAGRAM_USERNAME:
-        print("Instagram: INSTAGRAM_USERNAME not set")
-        return False
     try:
-        if SESSION_FILE and os.path.exists(SESSION_FILE):
-            L.load_session_from_file(INSTAGRAM_USERNAME, SESSION_FILE)
-            return True
-        try:
-            L.load_session_from_file(INSTAGRAM_USERNAME)
-            return True
-        except FileNotFoundError:
-            pass
-        if INSTAGRAM_PASSWORD:
-            L.login(INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD)
-            try:
-                L.save_session_to_file(SESSION_FILE or None)
-            except Exception:
-                pass
-            return True
-        print("Instagram: no session and no password provided")
-        return False
-    except Exception as e:
-        print("Instagram: session/login failed:", e)
-        return False
+        response = requests.get(url, headers=headers, params=querystring)
+        response.raise_for_status()
+        data = response.json()
 
-_session_ready = _ensure_session()
+        edges = data.get("posts", {}).get("edges", [])
+        if not edges:
+            print("No posts found for this hashtag.")
+            return []
 
-def fetch_instagram(username="bbcnews", limit=5):
-    if not _session_ready:
-        print("Instagram: proceeding unauthenticated (may be rate-limited)")
-    # small retry/backoff loop
-    attempts = 3
-    for attempt in range(1, attempts + 1):
-        try:
-            profile = Profile.from_username(L.context, username)
-            break
-        except (ConnectionException,) as e:
-            print(f"Instagram: connection error (attempt {attempt}/{attempts}): {e}")
-            if attempt < attempts:
-                time.sleep(5 * attempt)
+        posts = []
+        for edge in edges:
+            node = edge.get("node")
+            if not node:
                 continue
-            return []
-        except ProfileNotExistsException:
-            print(f"Instagram: profile '{username}' does not exist")
-            return []
-        except Exception as e:
-            print("Instagram: unexpected error:", e)
-            return []
-    results = []
-    try:
-        for i, post in enumerate(profile.get_posts()):
-            if i >= limit: break
-            results.append({
+
+            # Caption
+            caption_edges = node.get("edge_media_to_caption", {}).get("edges", [])
+            caption_text = caption_edges[0]["node"]["text"] if caption_edges else ""
+
+            # Post URL
+            shortcode = node.get("shortcode", "")
+            post_url = f"https://www.instagram.com/p/{shortcode}" if shortcode else ""
+
+            posts.append({
                 "platform": "instagram",
-                "user": username,
-                "timestamp": str(post.date),
-                "text": post.caption or "",
-                "url": getattr(post, "url", f"https://www.instagram.com/p/{post.shortcode}/")
+                "hashtag": hashtag,
+                "timestamp": node.get("taken_at_timestamp"),
+                "text": caption_text,
+                "url": post_url,
+                "display_url": node.get("display_url"),
+                "likes": node.get("edge_liked_by", {}).get("count", 0),
+                "comments": node.get("edge_media_to_comment", {}).get("count", 0),
+                "is_video": node.get("is_video", False)
             })
-    except ConnectionException as e:
-        print("Instagram: connection lost while fetching posts:", e)
-    return results
+
+        return posts[:limit]
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data from Instagram API: {e}")
+        return []
+    except ValueError as e:
+        print(f"Error parsing JSON response: {e}")
+        return []

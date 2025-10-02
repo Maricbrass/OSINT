@@ -1,13 +1,13 @@
 import discord
+import asyncio
 import os
-TOKEN = os.getenv("DISCORD_TOKEN")
 
-# Enable intents so bot can read messages
+messages = []
+
+DISCORD_KEY = os.getenv("DISCORD_KEY")
 intents = discord.Intents.default()
 intents.message_content = True
-
 client = discord.Client(intents=intents)
-messages = []
 
 @client.event
 async def on_message(message):
@@ -20,5 +20,13 @@ async def on_message(message):
             "url": f"https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id}"
         })
 
-# Run the bot
-client.run(TOKEN)
+async def fetch_discord_messages():
+    await client.start(DISCORD_KEY)
+    # Optionally, add timeout to stop after some time
+    await asyncio.sleep(10)  # collect messages for 10 seconds
+    await client.close()
+    return messages
+
+# Example: run in main pipeline
+data = asyncio.run(fetch_discord_messages())
+print(data)
