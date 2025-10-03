@@ -14,8 +14,6 @@ def fetch_instagram(hashtag="gaming",limit=5):
         print("Error: RAPIDAPI_KEY not found in environment variables")
         return []
     
-    # These values will vary based on which Instagram API you choose on RapidAPI
-    # You'll need to update these based on the specific API's documentation
     url = "https://instagram-scraper-stable-api.p.rapidapi.com/search_hashtag.php"
     
     querystring = {
@@ -24,7 +22,7 @@ def fetch_instagram(hashtag="gaming",limit=5):
     
     headers = {
         "X-RapidAPI-Key": RAPIDAPI_KEY,
-        "X-RapidAPI-Host": RAPIDAPI_HOST # Update with your API's host
+        "X-RapidAPI-Host": RAPIDAPI_HOST
     }
 
     try:
@@ -43,11 +41,9 @@ def fetch_instagram(hashtag="gaming",limit=5):
             if not node:
                 continue
 
-            # Caption
             caption_edges = node.get("edge_media_to_caption", {}).get("edges", [])
             caption_text = caption_edges[0]["node"]["text"] if caption_edges else ""
 
-            # Post URL
             shortcode = node.get("shortcode", "")
             post_url = f"https://www.instagram.com/p/{shortcode}" if shortcode else ""
 
@@ -62,7 +58,7 @@ def fetch_instagram(hashtag="gaming",limit=5):
                 "comments": node.get("edge_media_to_comment", {}).get("count", 0),
                 "is_video": node.get("is_video", False)
             })
-
+        print(f"Instagram: Fetched {len(posts)} posts for hashtag '{hashtag}'")
         return posts[:limit]
 
     except requests.exceptions.RequestException as e:

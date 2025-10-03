@@ -1,9 +1,11 @@
 import tweepy, os
+import random
+import datetime
 from dotenv import load_dotenv
 load_dotenv()
 TWITTER_BEARER = os.getenv("TWITTER_BEARER")
 client = tweepy.Client(bearer_token=TWITTER_BEARER)
-def fetch_twitter(query="OSINT", count=20):
+def fetch_twitter1(query="OSINT", count=20):
     tweets = client.search_recent_tweets(query=query, max_results=count, tweet_fields=["created_at", "text", "author_id"])
     results = []
     if tweets.data:

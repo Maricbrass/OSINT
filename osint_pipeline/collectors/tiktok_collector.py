@@ -48,7 +48,7 @@ def fetch_tiktok(keyword="cybersecurity", limit=5):
                 "play_url": video_data.get("playAddr") or "N/A",
                 "download_url": video_data.get("downloadAddr") or "N/A"
             })
-        
+        print(f"TikTok: Fetched {len(results)} results for keyword '{keyword}'")
         return results
     
     except requests.exceptions.RequestException as e:

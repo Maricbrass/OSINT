@@ -7,10 +7,6 @@ RAPIDAPI_KEY = os.getenv("R_FACEBOOK_KEY")
 RAPIDAPI_HOST = os.getenv("R_FACEBOOK_RAPID_HOST")
 
 def fetch_facebook(query="pizza", limit=5):
-    """
-    Collector function: fetch Facebook data using RapidAPI Facebook Scraper.
-    Returns profile/page details from search results.
-    """
     if not RAPIDAPI_KEY:
         print("Error: RAPIDAPI_KEY not found in environment variables")
         return []
@@ -43,7 +39,7 @@ def fetch_facebook(query="pizza", limit=5):
                 "image_width": image_info.get("width"),
                 "image_height": image_info.get("height"),
             })
-
+        print(f"Facebook: Fetched {len(results)} results for query '{query}'")
         return results
 
     except requests.exceptions.RequestException as e:
@@ -52,5 +48,3 @@ def fetch_facebook(query="pizza", limit=5):
     except ValueError as e:
         print(f"Error parsing JSON response: {e}")
         return []
-
-

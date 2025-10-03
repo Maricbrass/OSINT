@@ -1,7 +1,7 @@
 from linkedin_api import Linkedin
 import os
 def fetch_linkedin(keyword="cybersecurity", limit=10):
-    print(os.getenv("LK_MAIL"), os.getenv("LK_PASS"))
+    # print(os.getenv("LK_MAIL"), os.getenv("LK_PASS"))
     api = Linkedin(os.getenv("LK_MAIL"), os.getenv("LK_PASS"))
     print(api)
     results = []
