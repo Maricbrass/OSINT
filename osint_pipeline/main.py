@@ -6,6 +6,7 @@ from collectors.github_collector import fetch_github
 from collectors.linkedin_collector import fetch_linkedin
 # from collectors.discord_collector import on_message
 from collectors.quora_collector import fetch_quora
+# from collectors.telegram_collector import fetch_telegram
 from utils.cleaner import clean_text, filter_english
 from utils.database import save_to_db
 from utils.sentiment import add_sentiment
@@ -13,13 +14,15 @@ from utils.sentiment import add_sentiment
 def run_pipeline():
     # Collect
     data = []
-    data.extend(fetch_twitter("AI", 100))
-    data.extend(fetch_reddit("technology", 100))
-    data.extend(fetch_facebook("cnn", 5))
-    data.extend(fetch_instagram("security", 10))
+    # data.extend(fetch_twitter("AI", 100))
+    # data.extend(fetch_reddit("technology", 100))
+    # data.extend(fetch_facebook("paris", 5))
+    # data.extend(fetch_instagram("security", 10))
     data.extend(fetch_github("security", 5))
-    data.extend(fetch_quora("Social Media", 50))
-    data.extend(fetch_linkedin("cybersecurity", 5))
+    # data.extend(fetch_quora("Social Media", 50))
+    # data.extend(fetch_telegram("osint_channel", 50))
+    # data.extend(fetch_linkedin("cybersecurity", 5))
+
     # data.extend(on_message("cybersecurity"))
 
     # Clean
