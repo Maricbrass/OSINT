@@ -96,3 +96,4 @@ typing-extensions==4.15.0
 filelock==3.19.1
 greenlet==3.2.4
 colorama==0.4.6
+flask==2.3.3

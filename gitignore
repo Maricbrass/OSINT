@@ -33,3 +33,4 @@ share/
 osint_pipeline/.env
 osint_pipeline/__pycache__/
 osint_pipeline/collectors/__pycache__/
+osint_pipeline/utils/__pycache__/

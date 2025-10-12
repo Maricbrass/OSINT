@@ -156,6 +156,16 @@ python automate.py
 
 Press `Ctrl+C` to stop the scheduler.
 
+### Run the Dashboard
+
+To start the web dashboard for searching collected data:
+
+```bash
+python dashboard.py
+```
+
+Then open your browser to `http://127.0.0.1:5000/` and enter search terms to query the OSINT database.
+
 ### Customize Collection Parameters
 
 Edit `main.py` to customize what data to collect:
