@@ -22,10 +22,17 @@
                 <div class="col-md-6 mb-3">
                     <div class="card h-100">
                         <div class="card-body">
-                            <h5 class="card-title">{{ result.platform|title }}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">{{ result.user }}</h6>
-                            <p class="card-text small text-muted">{{ result.timestamp }}</p>
-                            <p class="card-text">{{ result.text }}</p>
+                            <h5 class="card-title">
+                                <span class="badge bg-primary">{{ result.platform|title }}</span>
+                                {% if result.sentiment %}
+                                <span class="badge bg-{% if result.sentiment > 0 %}success{% elif result.sentiment < 0 %}danger{% else %}secondary{% endif %} ms-2">
+                                    Sentiment: {{ "%.2f"|format(result.sentiment) }}
+                                </span>
+                                {% endif %}
+                            </h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ result.user or 'Unknown User' }}</h6>
+                            <p class="card-text small text-muted">{{ result.timestamp or 'No timestamp' }}</p>
+                            <p class="card-text">{{ result.text or 'No content' }}</p>
                             {% if result.url %}
                             <a href="{{ result.url }}" target="_blank" class="btn btn-sm btn-outline-primary">View Original</a>
                             {% endif %}

@@ -3,8 +3,9 @@ import sqlite3
 import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'osint_pipeline'))
-from main import run_pipeline
-from utils.visualizer import plot_sentiment, plot_post_frequency, plot_platform_distribution, get_sentiment_data, get_frequency_data, get_platform_data
+from osint_pipeline.main import run_pipeline
+from osint_pipeline.utils.visualizer import plot_sentiment, plot_post_frequency, plot_platform_distribution, get_sentiment_data, get_frequency_data, get_platform_data
+from textblob import TextBlob
 
 app = Flask(__name__)
 
@@ -33,15 +34,27 @@ def search():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    # Search in text field, case-insensitive
+    # Search across multiple fields: user, text, platform, url
+    search_pattern = '%' + query + '%'
     cursor.execute("""
         SELECT platform, user, timestamp, text, url
         FROM osint_data
-        WHERE text LIKE ?
+        WHERE user LIKE ? OR text LIKE ? OR platform LIKE ? OR url LIKE ?
         ORDER BY timestamp DESC
-    """, ('%' + query + '%',))
+    """, (search_pattern, search_pattern, search_pattern, search_pattern))
     rows = cursor.fetchall()
     conn.close()
+
+    # Calculate sentiment for each result
+    results = []
+    for row in rows:
+        result = dict(row)
+        # Calculate sentiment using TextBlob
+        text = result.get('text', '') or ''
+        result['sentiment'] = TextBlob(text).sentiment.polarity
+        results.append(result)
+
+    return render_template('results.html', results=results, query=query)
 
 @app.route('/database', methods=['GET'])
 def database():
@@ -62,7 +75,15 @@ def database():
     rows = cursor.fetchall()
     conn.close()
 
-    results = [dict(row) for row in rows]
+    # Calculate sentiment for each result
+    results = []
+    for row in rows:
+        result = dict(row)
+        # Calculate sentiment using TextBlob
+        text = result.get('text', '') or ''
+        result['sentiment'] = TextBlob(text).sentiment.polarity
+        results.append(result)
+
     total_pages = (total + per_page - 1) // per_page
     return render_template('database.html', results=results, page=page, total_pages=total_pages)
 

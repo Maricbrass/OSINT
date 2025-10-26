@@ -29,8 +29,10 @@ share/
 /*
 !.gitignore
 !osint_pipeline/
-!osint_pipeline/**
+!osint_pipeline/
 osint_pipeline/.env
 osint_pipeline/__pycache__/
 osint_pipeline/collectors/__pycache__/
 osint_pipeline/utils/__pycache__/
+osint_pipeline\__pycache__
+osint_pipeline\collectors\__pycache__
